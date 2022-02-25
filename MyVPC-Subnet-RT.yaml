@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CyberInsight Second VPC in us-east-1
+Resources:
+  NwktVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 192.168.0.0/16
+      InstanceTenancy: default
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: CyberInsight-VPC-02
+  NwktSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NwktVPC
+      CidrBlock: 192.168.0.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: NWKT-Pub2-use1a
+  NwktPUB2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NwktVPC
+      Tags:
+        - Key: Name
+          Value: NWKT-PUB2-RT
+  NwktRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: NwktSubnet
+      RouteTableId:
+        Ref: NwktPUB2RouteTable
