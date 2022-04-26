@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: CyberInsight Second VPC in us-east-1
+Description: CyberInsight YouTube Test VPC in us-east-1
 Resources:
   NwktVPC:
     Type: AWS::EC2::VPC
@@ -10,4 +10,4 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: CyberInsight-VPC-02
+          Value: YouTube-VPC-01

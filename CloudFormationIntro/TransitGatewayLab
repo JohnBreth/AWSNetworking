@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: TransitGatewayLab
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    Description: Enter instance size. Default is t3a.medium.
+  AMI:
+    Type: String
+    Default: ami-0e1d30f2c40c4c701
+    Description: The Amazon Linux AMI to use.
+  Key:
+    Type: String
+    Default: NWKT-Key-ECS
+    Description: The key used to access the instance.
+Resources:
+  NwktVPCProd:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.11.0.0/16
+      InstanceTenancy: default
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: CyberInsight-NWKT-Prod
+  NwktVPCTest:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.12.0.0/16
+      InstanceTenancy: default
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: CyberInsight-NWKT-Test
+  NwktVPCDev:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.13.0.0/16
+      InstanceTenancy: default
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: CyberInsight-NWKT-Dev
+
+
+  NWKTProdSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NwktVPCProd
+      CidrBlock: 10.11.1.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: NWKT-Prod-Subnet-use1a
+  NWKTProdRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NwktVPCProd
+      Tags:
+        - Key: Name
+          Value: NWKT-Prod-RT
+  NwktProdRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: NWKTProdSubnet
+      RouteTableId:
+        Ref: NWKTProdRT
+
+  NWKTTestSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NwktVPCTest
+      CidrBlock: 10.12.1.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: NWKT-Test-Subnet-use1a
+  NWKTTestRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NwktVPCTest
+      Tags:
+        - Key: Name
+          Value: NWKT-Test-RT
+  NwktTestRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: NWKTTestSubnet
+      RouteTableId:
+        Ref: NWKTTestRT
+
+  NWKTDevSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NwktVPCDev
+      CidrBlock: 10.13.1.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: NWKT-Dev-Subnet-use1a
+  NWKTDevRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref NwktVPCDev
+      Tags:
+        - Key: Name
+          Value: NWKT-Dev-RT
+  NwktDevRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: NWKTDevSubnet
+      RouteTableId:
+        Ref: NWKTDevRT
+
+  ProdIGW01:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub Prod-IGW-01
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref NwktVPCProd
+      InternetGatewayId: !Ref ProdIGW01
+
+  ProdSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "NWKT-Prod-SG"
+      GroupDescription: "Bits and Bytes"
+      VpcId: !Ref NwktVPCProd
+      Tags:
+        - Key: Name
+          Value: NWKT-Prod-SG
+  TestSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "NWKT-Test-SG"
+      GroupDescription: "Bits and Bytes"
+      VpcId: !Ref NwktVPCTest
+      Tags:
+        - Key: Name
+          Value: NWKT-Test-SG
+  DevSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "NWKT-Dev-SG"
+      GroupDescription: "Bits and Bytes"
+      VpcId: !Ref NwktVPCDev
+      Tags:
+        - Key: Name
+          Value: NWKT-Dev-SG
+
+  ProdEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: InstanceTypeParameter
+      SecurityGroupIds:
+        - Ref: ProdSecurityGroup
+      KeyName: !Ref Key
+      ImageId: !Ref AMI
+      SubnetId: !Ref NWKTProdSubnet
+      Tags:
+        - Key: Name
+          Value: ProdEC2Instance
+  TestEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: InstanceTypeParameter
+      SecurityGroupIds:
+        - Ref: TestSecurityGroup
+      KeyName: !Ref Key
+      ImageId: !Ref AMI
+      SubnetId: !Ref NWKTTestSubnet
+      Tags:
+        - Key: Name
+          Value: TestEC2Instance
+  DevEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: InstanceTypeParameter
+      SecurityGroupIds:
+        - Ref: DevSecurityGroup
+      KeyName: !Ref Key
+      ImageId: !Ref AMI
+      SubnetId: !Ref NWKTDevSubnet
+      Tags:
+        - Key: Name
+          Value: DevEC2Instance
+
+
