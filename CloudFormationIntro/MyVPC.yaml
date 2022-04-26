@@ -11,3 +11,6 @@ Resources:
       Tags:
         - Key: Name
           Value: YouTube-VPC-01
+Outputs:
+  NwktVPC:
+    Value: !GetAtt NwktVPC

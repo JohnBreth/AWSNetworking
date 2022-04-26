@@ -34,3 +34,12 @@ Resources:
         Ref: NwktSubnet
       RouteTableId:
         Ref: NwktPUB2RouteTable
+Outputs:
+  NwktVPC:
+    Value: !GetAtt NwktVPC
+  NwktSubnet:
+    Value: !Ref NwktSubnet
+  NwktPUB2RouteTable:
+    Value: !Ref NwktPUB2RouteTable
+  CIDRVPC:
+    Value: !GetAtt NwktVPC.CidrBlock
