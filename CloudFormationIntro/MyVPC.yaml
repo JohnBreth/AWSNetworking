@@ -13,4 +13,4 @@ Resources:
           Value: YouTube-VPC-01
 Outputs:
   NwktVPC:
-    Value: !GetAtt NwktVPC
+    Value: !Ref NwktVPC
