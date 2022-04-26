@@ -36,7 +36,7 @@ Resources:
         Ref: NwktPUB2RouteTable
 Outputs:
   NwktVPC:
-    Value: !GetAtt NwktVPC
+    Value: !Ref NwktVPC
   NwktSubnet:
     Value: !Ref NwktSubnet
   NwktPUB2RouteTable:
